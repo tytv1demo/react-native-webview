@@ -962,6 +962,19 @@ static NSDictionary* customCertificatesForHost;
       }
     }];
   } else if (_onLoadingFinish) {
+    if (@available(iOS 11.0, *)) {
+      WKHTTPCookieStore *cookieStore = _webView.configuration.websiteDataStore.httpCookieStore;
+      [cookieStore getAllCookies:^(NSArray* cookies) {
+          NSHTTPCookie *cookie;
+          NSMutableDictionary *dics = [NSMutableDictionary dictionary];
+          for(cookie in cookies){
+              [dics setObject:cookie.value forKey:cookie.name];
+              [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+          }
+      }];
+    } else {
+          // Fallback on earlier versions
+    }
     _onLoadingFinish([self baseEvent]);
   }
 }
